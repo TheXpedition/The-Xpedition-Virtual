@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Expedición Antártica — Panel</title>
+<style>
+:root{
+  --bg:#d8edff; --bg-2:#c9e6ff; --tile:#ffffff; --tile-2:#eef7ff; --ink:#0a2a47;
+  --accent:#38a9ff; --badge:#123a66; --host:#2a6bf1; --staff:#22b35a; --glow:#73c2ff;
+  --team-white:#ffffff; --team-celeste:#e6f6ff; --team-azul:#bfe0ff;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; font-family: Poppins, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  color:var(--ink); background: radial-gradient(1200px 800px at 30% -10%, #ffffff 0%, var(--bg) 60%, var(--bg-2) 100%);
+  overflow-x:hidden;
+}
+#bg-snow{position:fixed; inset:0; z-index:-1}
+
+.wrap{ max-width:1200px; margin:16px auto; padding:12px 16px }
+.glass{
+  background: rgba(255,255,255,0.5); border:1px solid rgba(255,255,255,0.8);
+  backdrop-filter: blur(10px) saturate(140%); border-radius:20px;
+  box-shadow: 0 10px 30px rgba(13,41,79,0.08);
+}
+
+/* Header */
+.header{ display:flex; gap:16px; align-items:center; justify-content:space-between }
+.logo-zone{ flex:1 }
+.logo-box{
+  position:relative; min-height:90px; border:2px dashed #c8e4ff; border-radius:16px;
+  display:grid; place-items:center; background:linear-gradient(180deg,#fff,#f4faff); overflow:hidden;
+}
+.logo-img{ max-height:120px; width:auto; }
+
+/* Tools */
+.tools{ display:flex; align-items:center; gap:10px }
+.search{ padding:12px 14px; border-radius:14px; border:1px solid #cfe7ff; background:#fff; min-width:260px; font-weight:600 }
+.btn{ padding:12px 14px; border-radius:14px; border:1px solid #cfe7ff; background:#fff; font-weight:700; cursor:pointer }
+.btn:hover{ transform:translateY(-1px) }
+
+/* Teams strip */
+.teams{ display:grid; grid-template-columns: repeat(3, 1fr); gap:14px }
+.team-card{
+  display:grid; grid-template-columns: 120px 1fr; align-items:center;
+  gap:12px; padding:12px; border:1px solid #d3eaff; border-radius:16px; position:relative;
+}
+.team-white{ background: var(--team-white) }
+.team-celeste{ background: var(--team-celeste) }
+.team-azul{ background: var(--team-azul) }
+.team-media .square{
+  position:relative; display:block; width:110px; height:110px; border-radius:12px;
+  border:1px dashed #b8dcff; background:#fff; overflow:hidden; cursor:default;
+}
+.square-img{ width:100%; height:100%; object-fit:cover; display:block }
+.team-info .team-name{ margin:0; font-size:22px; font-weight:800 }
+
+/* Per-square hover snow canvas */
+.square .snow{ position:absolute; inset:0; pointer-events:none; display:none }
+.square:hover .snow{ display:block }
+
+/* Grid cards: 5 per row on desktop */
+.grid{ display:grid; grid-template-columns: repeat(5, minmax(180px,1fr)); gap:14px }
+@media (max-width:1100px){ .grid{ grid-template-columns: repeat(4, minmax(160px,1fr)) } }
+@media (max-width:900px){ .grid{ grid-template-columns: repeat(3, minmax(150px,1fr)) } }
+@media (max-width:650px){ .grid{ grid-template-columns: repeat(2, minmax(150px,1fr)) } }
+
+.card{
+  position:relative; background:var(--tile); border:1px solid #d8ecff; border-radius:18px; padding:12px;
+  box-shadow: 0 6px 18px rgba(11,40,75,0.08);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.card:hover{ transform: translateY(-6px) rotate(-0.3deg); box-shadow: 0 16px 28px rgba(11,40,75,0.15) }
+.card .top-badge{
+  position:absolute; left:50%; transform:translateX(-50%); top:-10px;
+  background:var(--badge); color:#fff; font-size:12px; font-weight:800; padding:4px 10px; border-radius:999px; letter-spacing:.6px;
+  border:1px solid rgba(255,255,255,.3);
+}
+.top-badge.host{ background:var(--host) }
+.top-badge.staff{ background:var(--staff) }
+
+.avatar{
+  position:relative; height:120px; border-radius:14px; background:linear-gradient(180deg,#eaf6ff,#ffffff);
+  border:1px dashed #cfe7ff; display:grid; place-items:center; margin-bottom:10px; overflow:hidden;
+}
+.avatar img{ width:100%; height:100%; object-fit:cover; display:block }
+.avatar canvas.snow{ position:absolute; inset:0; pointer-events:none; display:none }
+.avatar:hover canvas.snow{ display:block }
+
+/* Dani special */
+.card.dani{ box-shadow: 0 0 0 2px #bfe3ff, 0 0 0 8px rgba(115,194,255,.25) }
+.card.dani .avatar::after{ content:"👑"; position:absolute; top:-8px; right:8px; font-size:22px; transform:rotate(-10deg) }
+.card.dani .avatar{ box-shadow: 0 0 18px rgba(115,194,255,.8) inset, 0 0 22px rgba(115,194,255,.6) }
+
+.name{ font-size:20px; font-weight:800; letter-spacing:.2px; margin:0; text-align:center }
+.pos{ margin:4px 0 0 0; text-align:center; color:#4a6a88; font-weight:600; font-size:13px }
+
+/* Track */
+.track .track-head{ display:flex; align-items:center; justify-content:space-between; font-weight:800 }
+.track .track-preview{ display:grid; place-items:center; border:2px dashed #c8e4ff; border-radius:16px; min-height:180px; margin-top:10px; background:linear-gradient(180deg,#fff,#f6fbff) }
+.track .track-preview img{ max-width:100%; height:auto; display:block }
+
+/* === AWARDS === */
+.awards { margin-top: 16px; }
+.awards-head { font-weight: 800; letter-spacing: .6px; margin-bottom: 8px; }
+.awards-grid { display:grid; grid-template-columns: repeat(5, minmax(180px,1fr)); gap:14px }
+@media (max-width:1100px){ .awards-grid{ grid-template-columns: repeat(4, minmax(160px,1fr)) } }
+@media (max-width:900px){ .awards-grid{ grid-template-columns: repeat(3, minmax(150px,1fr)) } }
+@media (max-width:650px){ .awards-grid{ grid-template-columns: repeat(2, minmax(150px,1fr)) } }
+
+.award.card { position:relative }
+.award .badge-ice { position:absolute; right:8px; top:-10px; font-size:20px; filter: drop-shadow(0 2px 4px rgba(0,0,0,.15)); }
+.award.poop .badge-ice { }
+
+/* Footer spacing */
+.section-spacer{ height: 8px }
+</style>
+</head>
+<body>
+<canvas id="bg-snow" aria-hidden="true"></canvas>
+
+<!-- TOP: LOGO + BUSCAR -->
+<header class="wrap glass header">
+  <div class="logo-zone">
+    <div class="logo-box">
+      <img class="logo-img" id="logoImg" alt="Logo">
+    </div>
+  </div>
+  <div class="tools">
+    <input id="search" class="search" placeholder="Buscar participante…">
+    <button class="btn" id="clearSearch">Limpiar</button>
+  </div>
+</header>
+
+<!-- TEAMS STRIP -->
+<section class="wrap teams glass" id="teamsStrip">
+  <div class="team-card team-white">
+    <div class="team-media">
+      <div class="square">
+        <img class="square-img" id="teamImg0" alt="Equipo Blanco">
+        <canvas class="snow"></canvas>
+      </div>
+    </div>
+    <div class="team-info">
+      <h3 class="team-name">Equipo Blanco</h3>
+    </div>
+  </div>
+  <div class="team-card team-celeste">
+    <div class="team-media">
+      <div class="square">
+        <img class="square-img" id="teamImg1" alt="Equipo Celeste">
+        <canvas class="snow"></canvas>
+      </div>
+    </div>
+    <div class="team-info">
+      <h3 class="team-name">Equipo Celeste</h3>
+    </div>
+  </div>
+  <div class="team-card team-azul">
+    <div class="team-media">
+      <div class="square">
+        <img class="square-img" id="teamImg2" alt="Equipo Azul">
+        <canvas class="snow"></canvas>
+      </div>
+    </div>
+    <div class="team-info">
+      <h3 class="team-name">Equipo Azul</h3>
+    </div>
+  </div>
+</section>
+
+<!-- GRID PARTICIPANTES (20 incl. Bonju & Dua) -->
+<main class="wrap">
+  <section class="grid" id="cardGrid"></section>
+</main>
+
+<!-- TRACK RECORD -->
+<section class="wrap glass track">
+  <div class="track-head">
+    <span>TRACK RECORD (PNG)</span>
+  </div>
+  <div class="track-preview">
+    <img id="trackPreview" alt="Track Record">
+  </div>
+</section>
+
+<!-- AWARDS -->
+<section class="wrap glass awards">
+  <div class="awards-head"><span>AWARDS</span></div>
+  <div class="awards-grid" id="awardsGrid"></div>
+</section>
+
+<script>
+/* ---------- Background snow ---------- */
+const bg = document.getElementById('bg-snow'); const bctx = bg.getContext('2d');
+function sizeBG(){ bg.width=innerWidth; bg.height=innerHeight }
+sizeBG(); addEventListener('resize', sizeBG);
+let bgFlakes = Array.from({length: Math.max(140, innerWidth/10)}, () => ({
+  x: Math.random()*innerWidth, y: Math.random()*innerHeight, r: Math.random()*1.8+0.8, s: Math.random()*0.7+0.3
+}));
+(function bgLoop(){
+  bctx.clearRect(0,0,bg.width,bg.height);
+  bctx.fillStyle = 'rgba(255,255,255,.9)';
+  bgFlakes.forEach(f=>{
+    bctx.beginPath(); bctx.arc(f.x,f.y,f.r,0,Math.PI*2); bctx.fill();
+    f.y+=f.s; f.x+=Math.sin(f.y*.02)*.3; if(f.y>bg.height+6){f.y=-6; f.x=Math.random()*bg.width}
+  });
+  requestAnimationFrame(bgLoop);
+})();
+
+/* ---------- Helpers ---------- */
+const $ = (s,el=document)=>el.querySelector(s); const $$=(s,el=document)=>[...el.querySelectorAll(s)];
+function slug(s){ return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/ñ/g,'n').replace(/[^a-z0-9]+/g,'').trim() }
+function tryImageCandidates(imgEl, candidates){
+  // Try sequence until one loads
+  let i=0; function setNext(){
+    if(i>=candidates.length){ return; }
+    const src = candidates[i++]; const tester = new Image();
+    tester.onload = ()=>{ imgEl.src = src; };
+    tester.onerror = ()=> setNext();
+    tester.src = src;
+  } setNext();
+}
+
+/* ---------- Logo & Teams & Track ---------- */
+(function initHeader(){
+  const logo = $('#logoImg');
+  tryImageCandidates(logo, [
+    'Personajes/logo.png', 'Personajes/Logo.png','Personajes/LOGO.png','Personajes/logo.jpg','Personajes/logo.jpeg'
+  ]);
+  const teamImgs = [$('#teamImg0'), $('#teamImg1'), $('#teamImg2')];
+  const teamCandidates = [
+    ['Personajes/EquipoBlanco.png','Personajes/Blanco.png','Personajes/Pinguinos.png'],
+    ['Personajes/EquipoCeleste.png','Personajes/Celeste.png','Personajes/Krill.png'],
+    ['Personajes/EquipoAzul.png','Personajes/Azul.png','Personajes/Focas.png']
+  ];
+  teamImgs.forEach((el,idx)=> tryImageCandidates(el, teamCandidates[idx]));
+
+  const track = $('#trackPreview');
+  tryImageCandidates(track, [
+    'Personajes/Track Record.png','Personajes/TrackRecord.png','Personajes/track_record.png','Personajes/track.png'
+  ]);
+})();
+
+/* ---------- Hover snow for squares (teams) ---------- */
+$$('.team-card .square').forEach(square=>{
+  const canvas = square.querySelector('canvas.snow'); const ctx = canvas.getContext('2d');
+  function resize(){ canvas.width=square.clientWidth; canvas.height=square.clientHeight }
+  resize(); new ResizeObserver(resize).observe(square);
+  let raf=null; let particles=[];
+  function start(){
+    particles = Array.from({length:20},()=>({x:Math.random()*canvas.width, y:-5, r:Math.random()*1.5+0.5, s:Math.random()*0.7+0.3}));
+    function step(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle='rgba(255,255,255,.95)';
+      particles.forEach(p=>{
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+        p.y += p.s; p.x += Math.sin(p.y*.08)*.3;
+        if(p.y>canvas.height+4){ p.y=-4; p.x=Math.random()*canvas.width }
+      });
+      raf = requestAnimationFrame(step);
+    }
+    cancelAnimationFrame(raf); step();
+  }
+  function stop(){ cancelAnimationFrame(raf); ctx.clearRect(0,0,canvas.width,canvas.height) }
+  square.addEventListener('mouseenter', start);
+  square.addEventListener('mouseleave', stop);
+});
+
+/* ---------- Participants ---------- */
+const participants = [
+  // 20 total including Bonju & Dua Lengua
+  {name:'Dani', crown:true, badge:null, candidates:['Dani.png','dani.png']},
+  {name:'Andromeda', candidates:['Andromeda.png','Andrómeda.png','andromeda.png','androméda.png']},
+  {name:'Bayron', candidates:['Bayron.png','bayron.png']},
+  {name:'Felix', candidates:['Felix.png','Félix.png','felix.png']},
+  {name:'Isabel', candidates:['Isabel.png','isa.png','isabel.png','Isa.png']},
+  {name:'Peggy', candidates:['Peggy.png','peggy.png']},
+  {name:'Eris Midnight', candidates:['Eris Midnight.png','Eris.png','eris.png']},
+  {name:'Emanuel', candidates:['Emanuel.png','emanuel.png']},
+  {name:'Ximena', candidates:['Ximena.png','ximena.png']},
+  {name:'Beto', candidates:['Beto.png','beto.png']},
+  {name:'Vita', candidates:['Vita.png','vita.png']},
+  {name:'Catalina', candidates:['Catalina.png','catalina.png']},
+  {name:'Eduardo', candidates:['Eduardo.png','eduardo.png']},
+  {name:'Daelly', candidates:['Daelly.png','daelly.png']},
+  {name:'Iñaella Rose', candidates:['Iñaella Rose.png','Inaella Rose.png','Inaella.png','inaella.png']},
+  {name:'Ignacio Ricci', candidates:['Ignacio Ricci.png','Ignacio.png','ignacio.png']},
+  {name:'Ivan Serrano', candidates:['Ivan Serrano.png','Iván Serrano.png','Ivan.png','ivan.png']},
+  {name:'Pier', candidates:['Pier.png','pier.png']},
+  {name:'Bonju', badge:'host', candidates:['Bonju.png','bonju.png']},
+  {name:'Dua Lengua', badge:'staff', candidates:['Dua Lengua.png','Dua.png','dua.png']}
+];
+
+const grid = document.getElementById('cardGrid');
+function renderParticipants(){
+  grid.innerHTML='';
+  const q = ($('#search').value||'').toLowerCase().trim();
+  participants
+    .filter(p => !q || p.name.toLowerCase().includes(q))
+    .forEach(p=>{
+      const card = document.createElement('article');
+      card.className = 'card' + (p.crown ? ' dani' : '');
+      if(p.badge==='host'){ const b=document.createElement('div'); b.className='top-badge host'; b.textContent='HOST'; card.appendChild(b); }
+      if(p.badge==='staff'){ const b=document.createElement('div'); b.className='top-badge staff'; b.textContent='STAFF'; card.appendChild(b); }
+
+      // Avatar with snow on hover
+      const avatar = document.createElement('div'); avatar.className='avatar';
+      const img = document.createElement('img'); avatar.appendChild(img);
+      const snow = document.createElement('canvas'); snow.className='snow'; avatar.appendChild(snow);
+
+      // Hover snow animation
+      const sctx = snow.getContext('2d');
+      function sresize(){ snow.width=avatar.clientWidth; snow.height=avatar.clientHeight }
+      sresize(); new ResizeObserver(sresize).observe(avatar);
+      let raf=null; let particles=[];
+      function start(){
+        particles = Array.from({length:18},()=>({x:Math.random()*snow.width, y:-5, r:Math.random()*1.5+0.5, s:Math.random()*0.7+0.3}));
+        function step(){
+          sctx.clearRect(0,0,snow.width,snow.height);
+          sctx.fillStyle='rgba(255,255,255,.95)';
+          particles.forEach(px=>{
+            sctx.beginPath(); sctx.arc(px.x,px.y,px.r,0,Math.PI*2); sctx.fill();
+            px.y += px.s; px.x += Math.sin(px.y*.08)*.3;
+            if(px.y>snow.height+4){ px.y=-4; px.x=Math.random()*snow.width }
+          });
+          raf = requestAnimationFrame(step);
+        }
+        cancelAnimationFrame(raf); step();
+      }
+      function stop(){ cancelAnimationFrame(raf); sctx.clearRect(0,0,snow.width,snow.height) }
+      avatar.addEventListener('mouseenter', start);
+      avatar.addEventListener('mouseleave', stop);
+
+      // Try image candidates from /Personajes
+      const paths = (p.candidates||[]).map(f=>'Personajes/'+f);
+      // Also auto-try slug-based common extensions
+      const s = slug(p.name);
+      paths.push('Personajes/'+s+'.png','Personajes/'+s+'.jpg','Personajes/'+s+'.jpeg');
+      tryImageCandidates(img, paths);
+
+      const name = document.createElement('h3'); name.className='name'; name.textContent=p.name;
+      const pos = document.createElement('div'); pos.className='pos'; pos.textContent='';
+
+      card.appendChild(avatar); card.appendChild(name); card.appendChild(pos);
+      grid.appendChild(card);
+    });
+}
+renderParticipants();
+
+/* Search controls */
+$('#search').addEventListener('input', renderParticipants);
+$('#clearSearch').addEventListener('click', ()=>{ $('#search').value=''; renderParticipants(); });
+
+/* ---------- AWARDS ---------- */
+const awardsData = [
+  {name:'Miss Congeniality', icon:'❄️', slug:'misscongeniality'},
+  {name:'Fan Favorite', icon:'❄️', slug:'fanfavorite'},
+  {name:'Best Villain', icon:'❄️', slug:'bestvillain'},
+  {name:'Versus Killer', icon:'❄️', slug:'versuskiller'},
+  {name:'Poop Of The Year', icon:'💩', slug:'poopoftheyear'}
+];
+const awardsGrid = document.getElementById('awardsGrid');
+function renderAwards(){
+  awardsGrid.innerHTML='';
+  awardsData.forEach(a=>{
+    const card = document.createElement('article');
+    card.className = 'card award' + (a.slug==='poopoftheyear' ? ' poop' : '');
+    const badge = document.createElement('div'); badge.className='badge-ice'; badge.textContent=a.icon; card.appendChild(badge);
+
+    const avatar = document.createElement('div'); avatar.className='avatar';
+    const img = document.createElement('img'); avatar.appendChild(img);
+    const snow = document.createElement('canvas'); snow.className='snow'; avatar.appendChild(snow);
+
+    // Hover snow
+    const sctx = snow.getContext('2d');
+    function sresize(){ snow.width=avatar.clientWidth; snow.height=avatar.clientHeight }
+    sresize(); new ResizeObserver(sresize).observe(avatar);
+    let raf=null; let particles=[];
+    function start(){
+      particles = Array.from({length:18},()=>({x:Math.random()*snow.width, y:-5, r:Math.random()*1.5+0.5, s:Math.random()*0.7+0.3}));
+      function step(){
+        sctx.clearRect(0,0,snow.width,snow.height);
+        sctx.fillStyle='rgba(255,255,255,.95)';
+        particles.forEach(px=>{
+          sctx.beginPath(); sctx.arc(px.x,px.y,px.r,0,Math.PI*2); sctx.fill();
+          px.y += px.s; px.x += Math.sin(px.y*.08)*.3;
+          if(px.y>snow.height+4){ px.y=-4; px.x=Math.random()*snow.width }
+        });
+        raf = requestAnimationFrame(step);
+      }
+      cancelAnimationFrame(raf); step();
+    }
+    function stop(){ cancelAnimationFrame(raf); sctx.clearRect(0,0,snow.width,snow.height) }
+    avatar.addEventListener('mouseenter', start);
+    avatar.addEventListener('mouseleave', stop);
+
+    // Award image candidates (put them in Personajes/Awards/)
+    const base = a.slug;
+    tryImageCandidates(img, [
+      'Personajes/Awards/'+base+'.png',
+      'Personajes/Awards/'+base+'.jpg',
+      'Personajes/Awards/'+base+'.jpeg'
+    ]);
+
+    const title = document.createElement('h3'); title.className='name'; title.textContent=a.name;
+    const pos = document.createElement('div'); pos.className='pos'; pos.textContent='';
+
+    card.appendChild(avatar); card.appendChild(title); card.appendChild(pos);
+    awardsGrid.appendChild(card);
+  });
+}
+renderAwards();
+</script>
+</body>
+</html>

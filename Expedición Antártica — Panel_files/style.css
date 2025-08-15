@@ -1,0 +1,123 @@
+/* Palette (azulejos) */
+:root{
+  --bg:#d8edff;
+  --bg-2:#c9e6ff;
+  --tile:#ffffff;
+  --tile-2:#eef7ff;
+  --ink:#0a2a47;
+  --accent:#38a9ff;
+  --badge:#123a66;
+  --host:#2a6bf1;
+  --staff:#22b35a;
+  --glow:#73c2ff;
+  --team-white:#ffffff;
+  --team-celeste:#e6f6ff;
+  --team-azul:#bfe0ff;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  color:var(--ink);
+  background: radial-gradient(1200px 800px at 30% -10%, #ffffff 0%, var(--bg) 60%, var(--bg-2) 100%);
+  overflow-x:hidden;
+}
+
+/* Ice blue background snow */
+#bg-snow{ position:fixed; inset:0; z-index:-1 }
+
+.wrap{ max-width:1200px; margin:16px auto; padding:12px 16px }
+.glass{
+  background: rgba(255,255,255,0.5);
+  border:1px solid rgba(255,255,255,0.8);
+  backdrop-filter: blur(10px) saturate(140%);
+  border-radius:20px;
+  box-shadow: 0 10px 30px rgba(13,41,79,0.08);
+}
+
+/* Header */
+.header{ display:flex; gap:16px; align-items:center; justify-content:space-between }
+.logo-zone{ flex:1 }
+.logo-drop{
+  position:relative; min-height:90px; border:2px dashed #c8e4ff; border-radius:16px;
+  display:grid; place-items:center; background:linear-gradient(180deg,#fff,#f4faff);
+  overflow:hidden;
+}
+.logo-drop input{ position:absolute; inset:0; opacity:0; cursor:pointer }
+.logo-drop .hint{ font-weight:700; color:#5f82a3 }
+.logo-drop img{ max-height:120px; width:auto; display:none }
+
+.tools{ display:flex; align-items:center; gap:10px }
+.search{ padding:12px 14px; border-radius:14px; border:1px solid #cfe7ff; background:#fff; min-width:260px; font-weight:600 }
+.btn{ padding:12px 14px; border-radius:14px; border:1px solid #cfe7ff; background:#fff; font-weight:700; cursor:pointer }
+.btn:hover{ transform:translateY(-1px) }
+
+/* Teams strip */
+.teams{ display:grid; grid-template-columns: repeat(3, 1fr); gap:14px }
+.team-card{
+  display:grid; grid-template-columns: 120px 1fr; align-items:center;
+  gap:12px; padding:12px; border:1px solid #d3eaff; border-radius:16px; position:relative;
+}
+.team-white{ background: var(--team-white) }
+.team-celeste{ background: var(--team-celeste) }
+.team-azul{ background: var(--team-azul) }
+.team-media .square{
+  position:relative; display:block; width:110px; height:110px; border-radius:12px;
+  border:1px dashed #b8dcff; background:#fff; overflow:hidden; cursor:pointer;
+}
+.team-media input{ position:absolute; inset:0; opacity:0; cursor:pointer }
+.team-media img{ width:100%; height:100%; object-fit:cover; display:none }
+.team-media .tip{ position:absolute; inset:auto; left:50%; top:50%; transform:translate(-50%,-50%); color:#6a8aa6; font-weight:700; font-size:12px }
+.team-info .team-name{ margin:0; font-size:22px; font-weight:800 }
+.team-info .team-name[contenteditable="true"]{ outline:2px dashed #b6d6f1; outline-offset:2px; border-radius:8px }
+
+/* Per-square hover snow canvas */
+.square .snow{ position:absolute; inset:0; pointer-events:none; display:none }
+.square:hover .snow{ display:block }
+
+/* Grid cards: 5 per row on desktop */
+.grid{ display:grid; grid-template-columns: repeat(5, minmax(180px,1fr)); gap:14px }
+@media (max-width:1100px){ .grid{ grid-template-columns: repeat(4, minmax(160px,1fr)) } }
+@media (max-width:900px){ .grid{ grid-template-columns: repeat(3, minmax(150px,1fr)) } }
+@media (max-width:650px){ .grid{ grid-template-columns: repeat(2, minmax(150px,1fr)) } }
+
+.card{
+  position:relative; background:var(--tile); border:1px solid #d8ecff; border-radius:18px; padding:12px;
+  box-shadow: 0 6px 18px rgba(11,40,75,0.08);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.card:hover{ transform: translateY(-6px) rotate(-0.3deg); box-shadow: 0 16px 28px rgba(11,40,75,0.15) }
+.card .top-badge{
+  position:absolute; left:50%; transform:translateX(-50%); top:-10px;
+  background:var(--badge); color:#fff; font-size:12px; font-weight:800; padding:4px 10px; border-radius:999px; letter-spacing:.6px;
+  border:1px solid rgba(255,255,255,.3);
+}
+.top-badge.host{ background:var(--host) }
+.top-badge.staff{ background:var(--staff) }
+
+.avatar{
+  position:relative; height:120px; border-radius:14px; background:linear-gradient(180deg,#eaf6ff,#ffffff);
+  border:1px dashed #cfe7ff; display:grid; place-items:center; margin-bottom:10px; overflow:hidden; cursor:pointer;
+}
+.avatar img{ width:100%; height:100%; object-fit:cover; display:none }
+.avatar .tip{ font-size:12px; color:#6a8aa6 }
+.avatar input{ position:absolute; inset:0; opacity:0; cursor:pointer }
+.avatar canvas.snow{ position:absolute; inset:0; pointer-events:none; display:none }
+.avatar:hover canvas.snow{ display:block }
+
+/* Dani special */
+.card.dani{ box-shadow: 0 0 0 2px #bfe3ff, 0 0 0 8px rgba(115,194,255,.25) }
+.card.dani .avatar::after{ content:"👑"; position:absolute; top:-8px; right:8px; font-size:22px; transform:rotate(-10deg) }
+.card.dani .avatar{ box-shadow: 0 0 18px rgba(115,194,255,.8) inset, 0 0 22px rgba(115,194,255,.6) }
+
+.name{ font-size:20px; font-weight:800; letter-spacing:.2px; margin:0; text-align:center }
+.name[contenteditable="true"]{ outline:2px dashed #b6d6f1; outline-offset:2px; border-radius:8px }
+.pos{ margin:4px 0 0 0; text-align:center; color:#4a6a88; font-weight:600; font-size:13px }
+.pos[contenteditable="true"]{ outline:2px dashed #cfe0f1; outline-offset:2px; border-radius:8px }
+
+/* Track */
+.track .track-head{ display:flex; align-items:center; justify-content:space-between; font-weight:800 }
+.track .track-preview{ display:grid; place-items:center; border:2px dashed #c8e4ff; border-radius:16px; min-height:180px; margin-top:10px; background:linear-gradient(180deg,#fff,#f6fbff) }
+.track .track-preview img{ max-width:100%; height:auto; display:none }
