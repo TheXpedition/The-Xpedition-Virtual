@@ -121,3 +121,38 @@ body{
 .track .track-head{ display:flex; align-items:center; justify-content:space-between; font-weight:800 }
 .track .track-preview{ display:grid; place-items:center; border:2px dashed #c8e4ff; border-radius:16px; min-height:180px; margin-top:10px; background:linear-gradient(180deg,#fff,#f6fbff) }
 .track .track-preview img{ max-width:100%; height:auto; display:none }
+
+/* ===== GRID DE PERSONAJES ===== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(180px, 1fr));
+  gap: 14px;
+}
+@media (max-width: 1100px) { .grid { grid-template-columns: repeat(4, minmax(160px, 1fr)); } }
+@media (max-width: 900px)  { .grid { grid-template-columns: repeat(3, minmax(150px, 1fr)); } }
+@media (max-width: 650px)  { .grid { grid-template-columns: repeat(3, minmax(120px, 1fr)); } } /* 3 en móvil */
+
+/* ===== GRID DE PREMIOS ===== */
+.awards-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(180px, 1fr));
+  gap: 14px;
+}
+@media (max-width: 1100px) { .awards-grid { grid-template-columns: repeat(4, minmax(160px, 1fr)); } }
+@media (max-width: 900px)  { .awards-grid { grid-template-columns: repeat(3, minmax(150px, 1fr)); } }
+@media (max-width: 650px)  { .awards-grid { grid-template-columns: repeat(3, minmax(120px, 1fr)); } } /* 3 en móvil */
+
+/* ===== EQUIPOS ===== */
+.teams { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 900px) { .teams { grid-template-columns: 1fr; } }
+
+/* ===== AJUSTES DE TAMAÑO ===== */
+.avatar { height: 120px; }
+@media (max-width: 650px) { .avatar { height: 100px; } }
+
+.name { font-size: 20px; }
+.pos, .posicion-personaje { font-size: 13px; }
+@media (max-width: 650px) {
+  .name { font-size: 18px; }
+  .pos, .posicion-personaje { font-size: 12px; }
+}
